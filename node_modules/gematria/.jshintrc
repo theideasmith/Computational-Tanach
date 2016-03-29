@@ -1,0 +1,33 @@
+{
+  "browser": true,
+  "camelcase": true,
+  "eqeqeq": true,
+  "eqnull": true,
+  "esnext": true,
+  "forin": false,
+  "indent": 2,
+  "lastsemic": false,
+  "latedef": false,
+  "laxbreak": false,
+  "laxcomma": false,
+  "maxerr": 100,
+  "maxlen": 80,
+  "newcap": false,
+  "noarg": true,
+  "node": true,
+  "noempty": true,
+  "passfail": false,
+  "predef": [
+    "exports",
+    "require",
+    "process"
+  ],
+  "quotmark": "single",
+  "shadow": false,
+  "strict": true,
+  "supernew": false,
+  "trailing": true,
+  "undef": true,
+  "unused": true,
+  "white": false
+}

@@ -4,6 +4,7 @@ var fs = require('fs')
 var filter = require('stream-filter')
 var split = require('split')
 var thru = require('thru')
+var gematria = require('gematria')
 require('shelljs/global')
 
 
@@ -33,7 +34,8 @@ function isolatePerekandPasuk(string){
   var pasuk = extractNum(match[0])
 
 
-  var res = { perek: perek,
+  var res = {
+              perek: perek,
               pasuk:pasuk,
               string: string
                         .replace(/\d/g,'')
@@ -42,6 +44,7 @@ function isolatePerekandPasuk(string){
                         .replace(']','')
                         .replace(/[A-z]*/,'')
             }
+
   return res
 }
 
@@ -90,7 +93,6 @@ function allPasukim(location, cb){
 
 function filterPasukim(rawFolder, processedFolder){
 
-
   var folder = path.join(location,'/*')
   var folders = ls(folder)
 
@@ -128,23 +130,54 @@ function filterPasukim(rawFolder, processedFolder){
 
 
 function generateTanachDatabase(){
-  var Datastore = require('nedb')
-    , db = new Datastore({ filename: './tanach.db', autoload: true });
+  // var Datastore = require('nedb')
+  //   , db = new Datastore({ filename: './tanach.db', autoload: true });
 
-    allPasukim(resultDir, function(pasuk){
+    var data = []
 
-      var doc = {
+    return new Promise(function(f,r){
+      allPasukim(resultDir, function(pasuk){
+        if(pasuk.data.string === undefined) return
 
-        book:pasuk.book,
-        perek: pasuk.data.perek,
-        pasuk: pasuk.data.pasuk,
-        string: pasuk.data.string
-
-      }
-
-      db.insert(doc)
-    })
+        data.push({
+          book:pasuk.book,
+          perek: pasuk.data.perek,
+          pasuk: pasuk.data.pasuk,
+          string: pasuk.data.string
+        })
+      }).then(function(){
+        f(data)
+      })
+  })
 }
 
 
-generateTanachDatabase
+function generateGematriaToWordsDatabase(){
+  var Datastore = require('nedb')
+    , words = new Datastore({ filename: './words.db', autoload: true });
+  var tanach = new Datastore({ filename: './tanach.db', autoload: true })
+
+  tanach.find({}, function (err, docs) {
+    docs.forEach(function(pasuk){
+      if(pasuk.string === undefined) return
+      var sentence = pasuk.string.split(' ')
+
+      sentence.forEach(function(word){
+        words.insert({
+          word:word || "undefined",
+          gematria: gematria(word).toMisparHaPanim(),
+          location: {
+            book: pasuk.book,
+            perek: pasuk.perek,
+            pasuk: pasuk.pasuk
+          }
+        })
+      })
+    })
+  });
+}
+
+generateTanachDatabase().then(function(value){
+  fs.writeFileSync("./tanach.json", JSON.stringify(value))
+})
+// generateGematriaToWordsDatabase()

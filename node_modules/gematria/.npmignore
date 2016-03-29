@@ -1,0 +1,8 @@
+*~
+*.swp
+.DS_Store
+.idea
+.project
+logs
+*.log
+node_modules/*
