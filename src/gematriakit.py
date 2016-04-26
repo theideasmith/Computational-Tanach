@@ -11,9 +11,7 @@ import scipy.cluster.hierarchy as sch
 
 from matplotlib.pyplot import plot, ion, show
 import matplotlib.pyplot as plt
-
-
-tanach = pd.read_pickle('../data/tanach.pickle')
+from tanachkit import *
 
 
 def words(sefer):
@@ -89,9 +87,11 @@ def plot_all_gematrias(booklist):
         xs = np.arange(ys.shape[0])
         ax.bar(xs,ys)
 
+
+
 def plot_correlations(booklist):
     from mpl_toolkits.axes_grid1 import make_axes_locatable
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(20,20))
 
     books = booklist if len(booklist)>0 else np.unique(np.array(tanach['book']))
     mesh = []
@@ -113,10 +113,10 @@ def plot_correlations(booklist):
     plot_matr = plot_matr[leaves][:,leaves]
 
     ax.set_yticks(np.arange(len(books))+0.5)
-    ax.set_yticklabels(np.array(books)[leaves])
+    ax.set_yticklabels(np.array(books)[leaves], fontsize=20)
 
     ax.set_xticks(np.arange(len(books))+0.5)
-    ax.set_xticklabels(np.array(books)[leaves], rotation='vertical')
+    ax.set_xticklabels(np.array(books)[leaves], rotation='vertical',fontsize=20)
     # pc = ax.pcolormesh(nmeshnum,vmin=0, vmax=np.max(meshnum))
     pc = ax.pcolormesh(plot_matr)
     div = make_axes_locatable(ax)
@@ -127,7 +127,7 @@ def plot_correlations(booklist):
 
 def plot_colormesh(booklist, sort=False):
     from mpl_toolkits.axes_grid1 import make_axes_locatable
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,10))
 
     books = booklist if len(booklist)>0 else np.unique(np.array(tanach['book']))
     mesh = []
@@ -136,58 +136,24 @@ def plot_colormesh(booklist, sort=False):
         gem = gematriaze(wds)
         mesh.append(gem)
 
-    minsize = min(*[len(mesh[i]) for i in range(len(mesh))])
+    minsize = min(*map(len, mesh))
 
     if sort:
         mesh = [sorted(mesh[i][0:minsize]) for i in range(len(mesh))]
     else:
         mesh = [mesh[i][0:minsize] for i in range(len(mesh))]
 
-    plot_matr = np.array(mesh)
+    plot_matr = np.array(mesh)[[i for i in reversed(range(len(mesh)))]]
+
+   
 
     ax.set_yticks(np.arange(len(books))+0.5)
-    ax.set_yticklabels(np.array(books))
-
+    ax.set_yticklabels(np.array(books)[::-1])
+    
     pc = ax.pcolormesh(plot_matr,vmin=0, vmax=np.max(plot_matr))
     div = make_axes_locatable(ax)
     cax = div.append_axes("right", size="2%", pad=0.05)
     cbar = plt.colorbar(pc, cax=cax)
-
     fig.tight_layout()
 
 
-torah = [ 'Genesis',
-    'Exodus',
-    'Leviticus',
-    'Numbers',
-    'Deuteronomy']
-
-neviim = [
-    'Joshua',
-    'Judges',
-    'Samuel_1',
-    'Samuel_2',
-    'Kings_1',
-    'Kings_2',
-    'Isaiah',
-    'Jeremiah',
-    'Ezekiel'
-]
-
-ketubim = [
-    'Psalms',
-    'Proverbs',
-    'Job',
-    'Song_of_Songs',
-    'Ruth',
-    'Lamentations',
-    'Ecclesiastes',
-    'Esther',
-    'Daniel',
-    'Ezra',
-    'Nehemiah'
-]
-
-all = list(torah)
-all.extend(neviim)
-all.extend(ketubim)

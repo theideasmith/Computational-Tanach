@@ -5,7 +5,6 @@ tanach = pd.read_pickle('../data/tanach.pickle')
 def getpasuk(sefer, perek, pasuk):
     return tanach[(tanach['book']==sefer)&(tanach['perek']==perek)&(tanach['pasuk']==pasuk)]
 
-
 torah = [ 'Genesis',
     'Exodus',
     'Leviticus',
@@ -59,9 +58,3 @@ all = list(torah)
 all.extend(neviim)
 all.extend(trei_asar)
 all.extend(ketubim)
-
-tanach.book = tanach.book.astype("category")
-tanach.book.cat.set_categories(all, inplace=True)
-tanach.sort('book', inplace=True)
-
-
